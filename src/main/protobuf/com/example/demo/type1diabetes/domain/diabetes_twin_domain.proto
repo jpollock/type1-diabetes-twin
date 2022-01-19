@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package com.example.demo.type1diabetes.domain;
+
+import "akkaserverless/annotations.proto";
+
+// STATE SCHEMA
+message DiabetesTwinState {
+    string twinId = 1 [(akkaserverless.field).entity_key = true];
+    Presence presence = 2;
+    Location location = 3;
+    Glucose glucose = 4;
+    Insulin insulin = 5;
+    Carbs carbs = 6;
+}
+
+message Presence {
+    bool isConnected = 1;
+    int64 lastHeartbeatDate = 2;
+    string lastHeartbeatDateString = 3;
+
+}
+
+message Location {
+    double latitude = 1;
+    double longitude = 2;
+    int64 lastLocationDate = 3;
+    string lastLocationDateString = 4;
+
+}
+
+message Glucose {
+    int32 currentReading = 1;
+    int64 date = 2;
+    string dateString = 3;
+    int32 trend = 4;
+    string direction = 5;
+    string device = 6;
+    string type = 7;
+}
+
+message Insulin {
+    double onBoard = 1;
+    int64 lastDeliveryDate = 2;
+    string lastDeliveryDateString = 3;
+}
+
+message Carbs {
+    int32 onBoard = 1;
+    int64 lastConsumptionDate = 2;
+    string lastConsumptionDateString = 3;
+}
+
+// EVENTS
+message PresenceChanged {
+    bool connected = 1;
+    int64 dateTime = 2;
+}
+
+message GlucoseChanged {
+    Glucose oldValue = 1;
+    Glucose newValue = 2;
+}
+
+message InsulinGiven {
+    double units = 1;
+    int64 dateTime = 2;
+}
+
+message LocationChanged {
+    double latitude = 1;
+    double longitude = 2;
+    int64 dateTime = 3;
+}
+
+message CarbsGiven {
+    int32 amount = 1;
+    int64 dateTime = 2;
+}

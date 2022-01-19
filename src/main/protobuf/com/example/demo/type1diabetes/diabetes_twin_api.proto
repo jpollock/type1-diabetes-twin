@@ -1,0 +1,84 @@
+// This is the public API offered by your entity.
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+import "akkaserverless/annotations.proto";
+import "google/api/annotations.proto";
+
+import "com/example/demo/type1diabetes/domain/diabetes_twin_domain.proto";
+
+package com.example.demo.type1diabetes;
+
+
+message ToggleOnlineOffline {
+    string twinId = 1 [(akkaserverless.field).entity_key = true];
+    bool online = 2;
+    int64 dateTime = 3;
+}
+
+message CarbsAdded {
+    string twinId = 1 [(akkaserverless.field).entity_key = true];
+    int32 amount = 2;
+    int64 dateTime = 3;
+}
+
+message GlucoseChanged {
+    string twinId = 1 [(akkaserverless.field).entity_key = true];
+    domain.Glucose newValue = 2;
+    int64 dateTime = 3;
+
+}
+
+message InsulinGiven {
+    string twinId = 1 [(akkaserverless.field).entity_key = true];
+    double units = 2;
+    int64 dateTime = 3;
+
+}
+
+message LocationChanged {
+    string twinId = 1 [(akkaserverless.field).entity_key = true];
+    double latitude = 2;
+    double longitude = 3;
+    int64 dateTime = 4;
+}
+
+message GetTwin {
+    string twinId = 1 [(akkaserverless.field).entity_key = true];
+}
+
+message CurrentDiabetesTwin {
+    string twinId = 1 [(akkaserverless.field).entity_key = true];
+    domain.Presence presence = 2;
+    domain.Location location = 3;
+    domain.Glucose glucose = 4;
+    domain.Insulin insulin = 5;
+    domain.Carbs carbs = 6;
+}
+
+service DiabetesTwinService {
+    option (akkaserverless.codegen) = { 
+        event_sourced_entity: { 
+          name: "com.example.demo.type1diabetes.domain.DiabetesTwin" 
+          entity_type: "diabetes_twins" 
+          state: "com.example.demo.type1diabetes.domain.DiabetesTwinState" 
+          events: [
+            "com.example.demo.type1diabetes.domain.PresenceChanged",
+            "com.example.demo.type1diabetes.domain.GlucoseChanged",
+            "com.example.demo.type1diabetes.domain.InsulinGiven",
+            "com.example.demo.type1diabetes.domain.LocationChanged",
+            "com.example.demo.type1diabetes.domain.CarbsGiven"
+            ]
+        }    
+    };
+
+    rpc TogglePresence(ToggleOnlineOffline) returns (google.protobuf.Empty);
+    rpc SetGlucoseLevel(GlucoseChanged)  returns (google.protobuf.Empty);
+    rpc GiveInsulin(InsulinGiven) returns (google.protobuf.Empty);
+    rpc UpdateLocation(LocationChanged)  returns (google.protobuf.Empty);
+    rpc AddCarbs(CarbsAdded) returns (google.protobuf.Empty);
+
+    rpc GetCurrentTwin(GetTwin) returns (CurrentDiabetesTwin);
+
+}
